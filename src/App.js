@@ -1,24 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState, useEffect}  from 'react';
 import './App.css';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import AddingToRecipe from './component/AddingToRecipe'
+import DicplayDatabase from './component/DicplayDatabase'
 
-function App() {
+
+const App = () => {
+    const [recipeData, setRecipeData] = useState(null);
+
+  useEffect(() => {
+    const db = firebase.firestore();
+    const recipeCollection = db.collection('recipe');
+    recipeCollection.onSnapshot(snapshot => {
+      let list = [];
+      snapshot.forEach(doc => {
+        let obj = {
+          ...doc.data(),
+          id: doc.id
+        };
+        list.push(obj);
+      })
+      setRecipeData(list);
+    })
+  }, [])
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <AddingToRecipe/>
+
+      <DicplayDatabase listFromDatabase={recipeData}/>
     </div>
   );
 }
